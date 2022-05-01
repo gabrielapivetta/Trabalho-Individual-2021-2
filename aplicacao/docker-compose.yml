@@ -24,3 +24,14 @@ services:
       - .:/aplicacao
     depends_on:
       - database
+
+  nginx:
+    container_name: nginx
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - 80:80
+    depends_on:
+      - app
