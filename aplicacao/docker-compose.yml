@@ -11,3 +11,23 @@ services:
       POSTGRES_DB: ruby_project_db
     ports: 
       - 5432:5432
+    networks:
+      - web_app
+      
+  app:
+    container_name: app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/aplicacao
+    depends_on:
+      - database
+    networks:
+      - web_app
+
+networks:
+  web_app:
+    driver: bridge
