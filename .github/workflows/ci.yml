@@ -4,55 +4,54 @@
 #
 # This workflow will install a prebuilt Ruby version, install dependencies, and
 # run tests and linters.
-name: "Ruby on Rails CI"
+name: Ruby CI
+
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+
 jobs:
   test:
+
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:11-alpine
-        ports:
-          - "5432:5432"
-        env:
-          POSTGRES_DB: biblioteca_pessoal_test
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-    env:
-      RAILS_ENV: test
-      DATABASE_URL: "postgres://postgres:postgres@localhost:5432/biblioteca_pessoal_test"
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      # Add or replace dependency steps here
-      - name: Install Ruby and gems
-        uses: ruby/setup-ruby@8f312efe1262fb463d906e9bf040319394c18d3e # v1.92
+      - uses: actions/checkout@v3
+      - name: Set up Ruby ${{ matrix.ruby-version }}
+        uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
         with:
-          bundler-cache: true
-      # Add or replace database setup steps here
-      - name: Set up database schema
-        run: bin/rails db:schema:load
-      # Add or replace test runners here
+          ruby-version: '3.0.0'
+      - name: Install dependencies
+        run: |
+            cd aplicacao/
+            bundle install
       - name: Run tests
-        run: bin/rake
+        run: |
+            cd aplicacao/
+            bundle exec rake
 
   lint:
     runs-on: ubuntu-latest
+    strategy: 
+      matrix:
+        ruby-version: ['3.0']
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+       # Change directory to aplication
+      - name: Change directory to aplication
+        run: cd aplicacao
       - name: Install Ruby and gems
         uses: ruby/setup-ruby@8f312efe1262fb463d906e9bf040319394c18d3e # v1.92
         with:
           bundler-cache: true
+          ruby-version: ${{ matrix.ruby-version }}
       # Add or replace any other lints here
       - name: Security audit dependencies
-        run: bin/bundler-audit --update
+        run: bundler-audit --update
       - name: Security audit application code
-        run: bin/brakeman -q -w2
+        run: brakeman -q -w2
       - name: Lint Ruby files
-        run: bin/rubocop --parallel
+        run: rubocop --parallel
