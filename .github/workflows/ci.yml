@@ -55,18 +55,29 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-       # Change directory to aplication
-      - name: Change directory to aplication
-        run: cd aplicacao
       - name: Install Ruby and gems
         uses: ruby/setup-ruby@8f312efe1262fb463d906e9bf040319394c18d3e # v1.92
         with:
-          bundler-cache: true
-          ruby-version: ${{ matrix.ruby-version }}
+          ruby-version: '3.0.0'
       # Add or replace any other lints here
-      - name: Security audit dependencies
-        run: bundler-audit --update
-      - name: Security audit application code
-        run: brakeman -q -w2
+      - name: Install Bundle
+        run: |
+          cd aplicacao/
+          bundle install
+      - name: Install Gems
+        run: |
+          gem install bundler-audit 
+          gem install brakeman 
+          gem install rubocop
+      #- name: Security audit dependencies
+      #  run: |
+          # cd aplicacao/
+          # bundler-audit --update
+      # - name: Security audit application code
+        # run: |
+          # cd aplicacao/
+          # brakeman -q -w2
       - name: Lint Ruby files
-        run: rubocop --parallel
+        run: |
+          cd aplicacao/
+          rubocop --parallel
