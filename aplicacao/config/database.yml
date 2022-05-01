@@ -17,7 +17,7 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  host: 127.0.0.1
+  host: database
   username: postgres
   password: postgres
   port: 5432
