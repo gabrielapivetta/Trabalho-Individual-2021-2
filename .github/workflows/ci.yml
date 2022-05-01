@@ -14,9 +14,18 @@ on:
 
 jobs:
   test:
-
     runs-on: ubuntu-latest
-
+    services:
+      postgres:
+        image: postgres:12
+        ports:
+          - "5432:5432"
+        env:
+          POSTGRES_DB: biblioteca_pessoal_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+    env:
+      RAILS_ENV: test
     steps:
       - uses: actions/checkout@v3
       - name: Set up Ruby ${{ matrix.ruby-version }}
@@ -27,6 +36,12 @@ jobs:
         run: |
             cd aplicacao/
             bundle install
+      - name: Set up database schema
+        run: |
+            cd aplicacao/
+            rails db:create
+            rails db:migrate
+            rails db:seed
       - name: Run tests
         run: |
             cd aplicacao/
